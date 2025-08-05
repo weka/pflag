@@ -119,6 +119,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -967,6 +968,25 @@ func stripUnknownFlagValue(args []string) []string {
 	return nil
 }
 
+func canonifyBool(b string) (string, bool) {
+	if val, ok := map[string]bool{
+		"true":  true,
+		"yes":   true,
+		"on":    true,
+		"y":     true,
+		"t":     true,
+		"false": false,
+		"no":    false,
+		"off":   false,
+		"n":     false,
+		"f":     false,
+	}[strings.ToLower(b)]; ok {
+		return strconv.FormatBool(val), ok
+	} else {
+		return b, false
+	}
+}
+
 func (f *FlagSet) parseLongArg(s string, args []string, fn parseFunc) (a []string, err error) {
 	a = args
 	name := s[2:]
@@ -1002,6 +1022,17 @@ func (f *FlagSet) parseLongArg(s string, args []string, fn parseFunc) (a []strin
 	if len(split) == 2 {
 		// '--flag=arg'
 		value = split[1]
+		if flag.NoOptDefVal == "true" {
+			value, _ = canonifyBool(value)
+		}
+	} else if flag.NoOptDefVal == "true" && len(a) > 0 {
+		// special case for boolean flags - '--flag value' but only for legal booleans
+		if bv, ok := canonifyBool(a[0]); ok {
+			value = bv
+			a = a[1:]
+		} else {
+			value = flag.NoOptDefVal
+		}
 	} else if flag.NoOptDefVal != "" {
 		// '--flag' (arg was optional)
 		value = flag.NoOptDefVal
@@ -1067,6 +1098,17 @@ func (f *FlagSet) parseSingleShortArg(shorthands string, args []string, fn parse
 		// '-f=arg'
 		value = shorthands[2:]
 		outShorts = ""
+		if flag.NoOptDefVal == "true" {
+			value, _ = canonifyBool(value)
+		}
+	} else if flag.NoOptDefVal == "true" && len(args) > 0 {
+		// special case for boolean flags - '-flag value' but only for legal booleans
+		if bv, ok := canonifyBool(args[0]); ok {
+			args = args[1:]
+			value = bv
+		} else {
+			value = flag.NoOptDefVal
+		}
 	} else if flag.NoOptDefVal != "" {
 		// '-f' (arg was optional)
 		value = flag.NoOptDefVal

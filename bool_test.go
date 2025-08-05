@@ -177,3 +177,103 @@ func TestBoolP(t *testing.T) {
 		t.Errorf("expect c=false got c=%v", *c)
 	}
 }
+
+func TestBoolOptValue(t *testing.T) {
+	var tristate triStateValue
+	f := setUpFlagSet(&tristate)
+	err := f.Parse([]string{"--tristate", "false"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateFalse {
+		t.Fatal("expected", triStateFalse, "(triStateFalse) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+
+	err = f.Parse([]string{"--tristate", "true"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateTrue {
+		t.Fatal("expected", triStateTrue, "(triStateTrue) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+}
+
+func TestBoolOnOff(t *testing.T) {
+	var tristate triStateValue
+	f := setUpFlagSet(&tristate)
+	err := f.Parse([]string{"--tristate", "off"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateFalse {
+		t.Fatal("expected", triStateFalse, "(triStateFalse) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+
+	err = f.Parse([]string{"--tristate=off", "true"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateFalse {
+		t.Fatal("expected", triStateFalse, "(triStateFalse) but got", tristate, "instead")
+	}
+	if f.NArg() != 1 {
+		t.Fatal("expected", 1, "(1) but got", f.NArg(), "instead")
+	}
+
+	err = f.Parse([]string{"--tristate", "on"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateTrue {
+		t.Fatal("expected", triStateTrue, "(triStateTrue) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+
+	err = f.Parse([]string{"--tristate=on"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateTrue {
+		t.Fatal("expected", triStateTrue, "(triStateTrue) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+}
+
+func TestBoolYesNo(t *testing.T) {
+	var tristate triStateValue
+	f := setUpFlagSet(&tristate)
+	err := f.Parse([]string{"--tristate", "no"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateFalse {
+		t.Fatal("expected", triStateFalse, "(triStateFalse) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+
+	err = f.Parse([]string{"--tristate", "yes"})
+	if err != nil {
+		t.Fatal("expected no error; got", err)
+	}
+	if tristate != triStateTrue {
+		t.Fatal("expected", triStateTrue, "(triStateTrue) but got", tristate, "instead")
+	}
+	if f.NArg() != 0 {
+		t.Fatal("expected", 0, "(0) but got", f.NArg(), "instead")
+	}
+}
