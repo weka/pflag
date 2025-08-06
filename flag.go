@@ -165,6 +165,7 @@ type FlagSet struct {
 
 	// ParseErrorsAllowlist is used to configure an allowlist of errors
 	ParseErrorsAllowlist ParseErrorsAllowlist
+	ParseErrorsWhitelist ParseErrorsAllowlist
 
 	name              string
 	parsed            bool
@@ -1008,7 +1009,7 @@ func (f *FlagSet) parseLongArg(s string, args []string, fn parseFunc) (a []strin
 		case name == "help":
 			f.usage()
 			return a, ErrHelp
-		case f.ParseErrorsAllowlist.UnknownFlags:
+		case f.ParseErrorsAllowlist.UnknownFlags || f.ParseErrorsWhitelist.UnknownFlags:
 			// --unknown=unknownval arg ...
 			// we do not want to lose arg in this case
 			if len(split) >= 2 {
@@ -1077,7 +1078,7 @@ func (f *FlagSet) parseSingleShortArg(shorthands string, args []string, fn parse
 			f.usage()
 			err = ErrHelp
 			return
-		case f.ParseErrorsAllowlist.UnknownFlags:
+		case f.ParseErrorsAllowlist.UnknownFlags || f.ParseErrorsWhitelist.UnknownFlags:
 			// '-f=arg arg ...'
 			// we do not want to lose arg in this case
 			if len(shorthands) > 2 && shorthands[1] == '=' {
