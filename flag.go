@@ -138,6 +138,10 @@ const (
 	PanicOnError
 )
 
+// ParseErrorsWhitelist is replaced by ParseErrorsAllowlist
+// @deprecated: Use ParseErrorsAllowlist
+type ParseErrorsWhitelist = ParseErrorsAllowlist
+
 // ParseErrorsAllowlist defines the parsing errors that can be ignored
 type ParseErrorsAllowlist struct {
 	// UnknownFlags will ignore unknown flags errors and continue parsing rest of the flags
